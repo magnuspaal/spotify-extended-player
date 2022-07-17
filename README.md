@@ -1,6 +1,6 @@
 # Spotify extended player
 
-[![CI](https://github.com/magnuspaal/spotify-extended-player/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/magnuspaal/spotify-extended-player/actions/workflows/ci.yml)
+[![Deployment](https://github.com/magnuspaal/spotify-extended-player/actions/workflows/ci.yml/badge.svg)](https://github.com/magnuspaal/spotify-extended-player/actions/workflows/ci.yml)
 
 [DEMO](https://www.magnuspaal.com/spotify?)
 
