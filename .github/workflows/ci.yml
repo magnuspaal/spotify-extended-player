@@ -1,0 +1,74 @@
+name: Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy on server
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Find changed paths
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            front:
+              - './front/**'
+            back:
+              - './back/**'
+            front_install:
+              - './front/package.json'
+            back_install:
+              - './back/package.json'
+      - name: Push code into server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          script: |
+            cd spotify-extended-player
+            git pull
+      - name: Install frontend dependencies
+        uses: appleboy/ssh-action@master
+        if: steps.filter.outputs.front_install == 'true'
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          script: npm run install --prefix spotify-extended-player/front
+      - name: Install backend dependencies
+        uses: appleboy/ssh-action@master
+        if: steps.filter.outputs.back_install == 'true'
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          script: npm run install --prefix spotify-extended-player/back
+      - name: Restart frontend
+        uses: appleboy/ssh-action@master
+        if: ${{ steps.filter.outputs.front == 'true' ||
+          steps.filter.outputs.front_install == 'true' }}
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          script: |
+            docker-compose -f spotify-extended-player/docker-compose.yml stop spotify-client
+            docker-compose -f spotify-extended-player/docker-compose.yml --env-file ./spotify-extended-player/back/.env up -d --build spotify-client
+      - name: Restart backend
+        uses: appleboy/ssh-action@master
+        if: ${{
+          steps.filter.outputs.back == 'true' ||
+          steps.filter.outputs.back_install == 'true' }}
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          script: |
+            docker-compose -f spotify-extended-player/docker-compose.yml stop spotify-api
+            docker-compose -f spotify-extended-player/docker-compose.yml --env-file ./spotify-extended-player/back/.env up -d --build spotify-api
