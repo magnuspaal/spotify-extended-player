@@ -2,7 +2,7 @@
 
 [![Deployment](https://github.com/magnuspaal/spotify-extended-player/actions/workflows/ci.yml/badge.svg)](https://github.com/magnuspaal/spotify-extended-player/actions/workflows/ci.yml)
 
-[DEMO](https://www.magnuspaal.com/spotify?)
+[DEMO](https://magnuspaal.com/spotify?)
 
 ## Development
 
